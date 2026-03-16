@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">My Review History</h1>
+            <p class="text-gray-500">Manage your past contributions.</p>
+        </div>
+        <div class="flex gap-6 mt-4 md:mt-0">
+            <div class="text-center">
+                <span class="block text-2xl font-bold text-indigo-600">{{ total_reviews }}</span>
+                <span class="text-xs text-gray-500 uppercase tracking-wider">Reviews</span>
+            </div>
+            <div class="text-center">
+                <span class="block text-2xl font-bold text-green-600">{{ avg_given }}</span>
+                <span class="text-xs text-gray-500 uppercase tracking-wider">Avg Rating Given</span>
+            </div>
+        </div>
+    </div>
+
+    {% if reviews %}
+    <div class="grid gap-6">
+        {% for review in reviews %}
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {% if review.is_flagged_for_review %}border-red-500{% else %}border-indigo-500{% endif %} hover:shadow-lg transition duration-200">
+            <div class="flex flex-col md:flex-row justify-between items-start">
+                
+                <div class="flex-grow">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h2 class="text-xl font-bold text-gray-800">{{ review.course.name }} <span class="text-gray-500 font-normal">({{ review.course.code }})</span></h2>
+                        <span class="text-xs font-semibold px-2 py-1 rounded bg-gray-100 text-gray-600">
+                            {{ review.submitted_at.strftime('%Y-%m-%d') }}
+                        </span>
+                        {% if review.is_anonymous %}
+                        <span class="text-xs font-semibold px-2 py-1 rounded bg-gray-800 text-white">Anonymous</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex gap-4 text-sm text-gray-600 mb-3">
+                        <span>Quality: <b class="text-black">{{ review.quality_rating }}</b></span>
+                        <span>Assignment: <b class="text-black">{{ review.assignment_rating }}</b></span>
+                        <span>Grading: <b class="text-black">{{ review.grading_rating }}</b></span>
+                    </div>
+
+                    <p class="text-gray-700 italic bg-gray-50 p-3 rounded border border-gray-100 mb-3">
+                        "{{ review.review_text }}"
+                    </p>
+
+                    <div class="flex gap-2 text-xs">
+                        {% if review.is_flagged_for_review %}
+                            <span class="text-red-600 font-bold flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                Flagged for Moderation
+                            </span>
+                        {% else %}
+                            <span class="text-green-600 font-bold flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                Live
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex md:flex-col gap-2 mt-4 md:mt-0 ml-0 md:ml-4">
+                    <a href="{{ url_for('main.submit', course_id=review.course.id) }}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Edit
+                    </a>
+
+                    <form action="{{ url_for('main.delete_feedback', feedback_id=review.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this review? This cannot be undone.');">
+                        <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium rounded-md transition">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-white rounded-lg shadow border border-gray-100">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+        <h3 class="text-lg font-medium text-gray-900">No reviews yet</h3>
+        <p class="text-gray-500 mb-6">You haven't submitted any feedback yet.</p>
+        <a href="{{ url_for('main.index') }}" class="text-indigo-600 hover:underline font-semibold">Browse Courses to Rate &rarr;</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

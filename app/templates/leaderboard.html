@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto mt-10">
+
+<h2 class="text-2xl font-bold mb-6">
+🏆 Student Leaderboard
+</h2>
+
+<table class="w-full bg-white rounded-lg shadow">
+
+<thead class="bg-gray-100">
+
+<tr>
+<th class="p-3 text-left">Rank</th>
+<th class="p-3 text-left">Student</th>
+<th class="p-3 text-left">XP</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for s in students %}
+
+<tr class="border-b">
+
+<td class="p-3 font-bold">
+{{ loop.index }}
+</td>
+
+<td class="p-3">
+{{ s.username }}
+</td>
+
+<td class="p-3 text-indigo-600 font-semibold">
+{{ s.xp }} XP
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

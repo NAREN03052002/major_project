@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{{ url_for('forum.index', course_id=course.id) }}" class="text-indigo-600 hover:underline">&larr; Back to Forum</a>
+    </div>
+    
+    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-100">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Ask a Question: <span class="text-indigo-600">{{ course.code }}</span></h2>
+        
+        <form method="POST">
+            <div class="mb-6">
+                <label class="block text-gray-700 font-bold mb-2">Title</label>
+                <input type="text" name="title" required class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" placeholder="e.g., Confusion about Neural Networks">
+                <p class="text-xs text-gray-500 mt-1">Keep it short and specific.</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 font-bold mb-2">Details</label>
+                <textarea name="body" rows="6" required class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" placeholder="Describe your doubt in detail..."></textarea>
+            </div>
+            
+            <div class="mb-8">
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="is_anonymous" class="form-checkbox h-5 w-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300">
+                    <span class="ml-2 text-gray-700 select-none">Post Anonymously (Hide my name)</span>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-end">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+                    Post Question
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

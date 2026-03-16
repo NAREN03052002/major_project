@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 px-4 mb-20">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Manage Subjects</h1>
+            <p class="text-gray-600">Assigning subjects for: <strong class="text-indigo-600">{{ lecturer.username }}</strong> ({{ lecturer.department }})</p>
+        </div>
+        <a href="{{ url_for('admin.dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">&larr; Back to Dashboard</a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+        
+        <div class="bg-white p-6 rounded-lg shadow h-fit">
+            <h2 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Assign New Subject</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Subject Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Advanced Java" 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-green-500">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Subject Code</label>
+                    <input type="text" name="code" required placeholder="e.g. CS-305" 
+                           class="w-full px-3 py-2 border rounded focus:outline-none focus:border-green-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Target Branch</label>
+                        <select name="target_branch" class="w-full px-3 py-2 border rounded bg-white">
+                            <option value="MCA">MCA</option>
+                            <option value="MBA">MBA</option>
+                            <option value="BTech">B.Tech</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Target Year</label>
+                        <select name="target_year" class="w-full px-3 py-2 border rounded bg-white">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 transition">
+                    Assign Subject
+                </button>
+                <p class="text-xs text-gray-500 mt-2 text-center">
+                    Note: The lecturer must "Activate" this subject on their dashboard before feedback can be collected.
+                </p>
+            </form>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Assigned Subjects</h2>
+            
+            {% if lecturer.courses_taught|length > 0 %}
+                <ul class="space-y-3">
+                {% for course in lecturer.courses_taught %}
+                    <li class="flex justify-between items-center bg-gray-50 p-3 rounded border hover:shadow-sm transition">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-800">{{ course.code }}</span>
+                                {% if course.is_active %}
+                                    <span class="bg-green-100 text-green-800 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wide">Active</span>
+                                {% else %}
+                                    <span class="bg-yellow-100 text-yellow-800 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wide">Pending</span>
+                                {% endif %}
+                            </div>
+                            <span class="text-sm text-gray-600 block">{{ course.name }}</span>
+                            <span class="text-xs text-gray-400 block mt-1">For: {{ course.target_branch }} (Year {{ course.target_year }})</span>
+                        </div>
+                        
+                        <form method="POST" onsubmit="return confirm('Are you sure you want to remove {{ course.code }}? This will delete ALL feedback associated with it.');">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="course_id" value="{{ course.id }}">
+                            <button type="submit" class="text-red-500 hover:text-red-700 p-2 rounded hover:bg-red-50 transition" title="Remove Subject">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <p class="italic">No subjects assigned yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

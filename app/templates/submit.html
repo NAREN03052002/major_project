@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <a href="{{ url_for('main.index') }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to List</a>
+    <h1 class="text-3xl font-bold">Rate Course</h1>
+    <h2 class="text-xl text-gray-700 mb-6">{{ course.name }} ({{ course.code }})</h2>
+    
+    <div id="success-message" class="hidden mb-6 p-4 rounded-md bg-green-100 text-green-700">
+        </div>
+    
+    <div id="warning-message" class="hidden mb-6 p-4 rounded-md bg-yellow-100 text-yellow-700">
+        </div>
+
+    <form id="feedback-form">
+        {{ form.hidden_tag() }}
+        <div class="space-y-6">
+            <div>
+                {{ form.quality.label(class="block text-gray-700 text-lg font-bold mb-2") }}
+                {{ form.quality(class="w-full border rounded p-2", type="number", min="1", max="5", required=True) }}
+            </div>
+            <div>
+                {{ form.assignment.label(class="block text-gray-700 text-lg font-bold mb-2") }}
+                {{ form.assignment(class="w-full border rounded p-2", type="number", min="1", max="5", required=True) }}
+            </div>
+            <div>
+                {{ form.grading.label(class="block text-gray-700 text-lg font-bold mb-2") }}
+                {{ form.grading(class="w-full border rounded p-2", type="number", min="1", max="5", required=True) }}
+            </div>
+            <div>
+                {{ form.review_text.label(class="block text-gray-700 text-lg font-bold mb-2") }}
+                {{ form.review_text(rows="4", class="w-full shadow appearance-none border rounded py-2 px-3 text-gray-700", placeholder="Share your anonymous feedback...") }}
+            </div>
+
+            <div class="mt-4">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        {{ form.is_anonymous(class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded") }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        {{ form.is_anonymous.label(class="font-medium text-gray-700") }}
+                        <p class="text-gray-500">If you check this, the lecturer will see "Anonymous" instead of your name.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button type="submit" id="submit-btn" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded text-lg transition duration-300 flex justify-center items-center">
+                    <span>Submit Feedback</span>
+                    <svg id="loading-spinner" class="hidden animate-spin ml-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('feedback-form').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Stop page reload
+
+        const submitBtn = document.getElementById('submit-btn');
+        const spinner = document.getElementById('loading-spinner');
+        const successMsg = document.getElementById('success-message');
+        const warningMsg = document.getElementById('warning-message');
+
+        // Disable button and show spinner
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        spinner.classList.remove('hidden');
+        
+        // Clear previous messages
+        successMsg.classList.add('hidden');
+        warningMsg.classList.add('hidden');
+
+        // Gather Data
+        const formData = {
+            quality: document.getElementById('quality').value,
+            assignment: document.getElementById('assignment').value,
+            grading: document.getElementById('grading').value,
+            review_text: document.getElementById('review_text').value,
+            is_anonymous: document.getElementById('is_anonymous').checked
+        };
+
+        try {
+            const response = await fetch("{{ url_for('main.submit_feedback_api', course_id=course.id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': "{{ form.csrf_token.current_token }}"
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Hide form
+                document.getElementById('feedback-form').classList.add('hidden');
+                
+                if (result.flagged) {
+                    warningMsg.textContent = result.message;
+                    warningMsg.classList.remove('hidden');
+                } else {
+                    successMsg.textContent = result.message;
+                    successMsg.classList.remove('hidden');
+                }
+            } else {
+                alert("Error: " + result.message);
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                spinner.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("An error occurred while submitting.");
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            spinner.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

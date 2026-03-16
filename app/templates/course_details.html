@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="mb-8 bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-16 -mr-16 text-indigo-50 opacity-50">
+             <svg width="300" height="300" viewBox="0 0 500 500" fill="currentColor"><path d="M418.4,153.9C447.3,214.1,422.7,307.9,368.7,373.2C314.6,438.5,231.2,475.3,157.4,455.7C83.6,436.1,19.4,360.1,6.7,279.9C-5.9,199.7,33,115.3,98.7,66.2C164.3,17.1,256.7,3.2,323.6,35.8C390.5,68.4,431.9,147.6,418.4,153.9Z"></path></svg>
+        </div>
+
+        <a href="{{ url_for('main.index') }}" class="relative z-10 text-xs font-bold text-slate-500 hover:text-indigo-600 uppercase tracking-wide mb-4 inline-flex items-center transition">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Dashboard
+        </a>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between">
+            <div>
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">{{ course.name }}</h1>
+                <p class="text-lg text-slate-500 mt-2 font-medium flex items-center">
+                    <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-sm font-bold mr-2">{{ course.code }}</span>
+                    Prof. {{ course.lecturer.username }}
+                </p>
+            </div>
+            <div class="mt-6 md:mt-0 flex flex-wrap gap-3">
+                 <a href="{{ url_for('forum.index', course_id=course.id) }}" class="flex items-center bg-white border-2 border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 px-5 py-2.5 rounded-xl text-sm font-bold transition group">
+                    <svg class="w-5 h-5 mr-2 text-slate-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+                    Q&A Forum
+                </a>
+                <a href="{{ url_for('main.submit', course_id=course.id) }}" class="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 transition transform hover:-translate-y-0.5">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    Rate Course
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-8 bg-indigo-600 rounded-[2rem] p-8 shadow-2xl text-white flex flex-col md:flex-row justify-between items-center overflow-hidden relative group">
+        <div class="relative z-10 mb-6 md:mb-0">
+            <h2 class="text-2xl font-black mb-1 flex items-center">
+                <svg class="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Attendance Check-In
+            </h2>
+            <p class="text-indigo-100 opacity-90 font-medium">Verify your presence using location and device fingerprint.</p>
+        </div>
+        <button onclick="handleAttendanceCheckIn()" class="bg-white text-indigo-700 font-black px-10 py-4 rounded-2xl shadow-xl hover:scale-105 transition transform relative z-10 active:scale-95">
+            Mark Me Present
+        </button>
+        <div class="absolute -right-10 -top-10 bg-white/10 w-40 h-40 rounded-full transition-transform group-hover:scale-110"></div>
+    </div>
+
+    <div class="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-indigo-500 rounded-2xl p-6 mb-8 shadow-sm flex items-start gap-5">
+        <div class="bg-white p-3 rounded-full shadow-sm shrink-0">
+            <span class="text-2xl">✨</span>
+        </div>
+        <div>
+            <h3 class="text-sm font-extrabold text-indigo-900 uppercase tracking-wide mb-2">AI Advisor Insight</h3>
+            <p class="text-slate-700 text-sm font-medium leading-relaxed">
+                Summary: Students find this course highly engaging but mentioned the last assignment was challenging.
+                <span class="font-bold text-indigo-700 bg-indigo-100/50 px-1 rounded">Grading fairness is rated well.</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-8">
+            
+            <section class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/30 border border-slate-100 overflow-hidden" id="resources">
+                <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-violet-100 text-violet-600 p-2 rounded-lg mr-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">Resource Sharing Hub</h3>
+                    </div>
+                </div>
+                <div class="p-8">
+                 {% if resources %}
+
+{% for r in resources %}
+
+<div class="flex items-center justify-between bg-gray-50 rounded-lg p-4 mb-3">
+
+    <div class="flex items-center gap-3">
+
+        <div class="text-2xl">
+
+        {% set ext = r.file_path.split('.')[-1].lower() %}
+
+        {% if ext == 'pdf' %}
+            📄
+        {% elif ext in ['ppt','pptx'] %}
+            📊
+        {% elif ext in ['doc','docx'] %}
+            📝
+        {% elif ext in ['zip','rar'] %}
+            📦
+        {% elif ext in ['jpg','jpeg','png','gif'] %}
+            🖼
+        {% else %}
+            📁
+        {% endif %}
+
+        </div>
+
+        <div>
+            <p class="font-semibold">{{ r.title }}</p>
+            <p class="text-sm text-gray-500">{{ ext.upper() }}</p>
+        </div>
+
+    </div>
+
+    <div class="flex items-center gap-2">
+
+        <!-- DOWNLOAD BUTTON -->
+        <a href="{{ url_for('static', filename='uploads/' + r.file_path) }}"
+           class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg">
+           ⬇
+        </a>
+
+        <!-- DELETE BUTTON (ONLY COURSE LECTURER) -->
+        {% if current_user.is_authenticated and current_user.is_lecturer and current_user.id == course.lecturer_user_id %}
+
+        <form action="{{ url_for('lecturer.delete_resource', resource_id=r.id) }}" method="POST">
+
+            <button type="submit"
+                    onclick="return confirm('Delete this resource?')"
+                    class="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-2 rounded-lg">
+
+                🗑
+
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p class="text-gray-500 text-sm">
+No resources uploaded yet.
+</p>
+
+{% endif %}
+                </div>
+            </section>
+
+            <section class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/30 border border-slate-100 overflow-hidden" id="assignments">
+                <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center">
+                    <div class="bg-blue-100 text-blue-600 p-2 rounded-lg mr-4">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">Active Assignments</h3>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    {% if assignments %}
+                        {% for assign in assignments %}
+                        <div class="px-8 py-5 flex items-center justify-between hover:bg-slate-50 transition group">
+                            <div>
+                                <h4 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition">{{ assign.title }}</h4>
+                                <p class="text-sm text-slate-500 font-medium mt-1">Max Marks: {{ assign.max_marks }}</p>
+                            </div>
+                            <div class="text-right">
+                                {% set days_left = (assign.due_date - now).days %}
+                                <span class="block text-sm font-extrabold {% if days_left < 0 %}text-rose-500{% elif days_left < 2 %}text-amber-500{% else %}text-emerald-600{% endif %}">
+                                    {{ assign.due_date.strftime('%b %d') }}
+                                </span>
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Due Date</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-10 text-center text-slate-400 font-medium">No active assignments.</div>
+                    {% endif %}
+                   <div class="mt-10">
+
+               
+
+                </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/30 border border-slate-100 overflow-hidden" id="marks">
+                <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center">
+                     <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg mr-4">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">My Internal Marks</h3>
+                </div>
+                {% if student_marks %}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <tr>
+                                <th class="px-8 py-4">Assessment</th>
+                                <th class="px-8 py-4">Score</th>
+                                <th class="px-8 py-4">Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for mark in student_marks %}
+                            {% set percentage = (mark.score / mark.max_score) * 100 if mark.max_score > 0 else 0 %}
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-8 py-5 font-bold text-slate-900">{{ mark.assessment_name }}</td>
+                                <td class="px-8 py-5 text-slate-700 font-bold">{{ mark.score }} <span class="text-slate-400 font-medium">/ {{ mark.max_score }}</span></td>
+                                <td class="px-8 py-5 w-2/5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                                            <div class="h-full rounded-full {% if percentage >= 80 %}bg-emerald-500{% elif percentage >= 60 %}bg-amber-400{% else %}bg-rose-500{% endif %}" style="width: {{ percentage }}%"></div>
+                                        </div>
+                                        <span class="text-xs font-bold {% if percentage >= 80 %}text-emerald-600{% elif percentage >= 60 %}text-amber-500{% else %}text-rose-500{% endif %}">{{ "%.0f"|format(percentage) }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <div class="p-10 text-center text-slate-400 font-medium">No marks uploaded yet.</div>
+                {% endif %}
+            </section>
+        </div>
+
+        <div class="space-y-6" id="feedback-analytics">
+            <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/30 border border-slate-100">
+                <h3 class="text-sm font-extrabold text-slate-500 uppercase tracking-wider mb-6">Rating Distribution</h3>
+                <div class="h-48 relative">
+                    <canvas id="ratingChart"></canvas>
+                </div>
+            </div>
+
+             <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/30 border border-slate-100">
+                <h3 class="text-sm font-extrabold text-slate-500 uppercase tracking-wider mb-6">Sentiment Split</h3>
+                <div class="h-48 relative flex justify-center">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/30 border border-slate-100">
+                 <h3 class="text-sm font-extrabold text-slate-500 uppercase tracking-wider mb-4">Professor Tags (AI)</h3>
+                 <div class="flex flex-wrap gap-2">
+                     {% if professor_tags %}
+                        {% for tag in professor_tags %}
+                        <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-100">#{{ tag }}</span>
+                        {% endfor %}
+                     {% else %}
+                        <span class="text-slate-400 text-xs font-medium">No tags generated yet.</span>
+                     {% endif %}
+                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // --- SMART ATTENDANCE LOGIC (Preserved) ---
+    async function handleAttendanceCheckIn() {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser.");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            const deviceID = btoa(navigator.userAgent + screen.width + navigator.hardwareConcurrency);
+            const token = prompt("Verification Step: Enter the 6-digit session code shown on the lecturer's screen:");
+            
+            if (token && token.trim().length === 6) {
+                const res = await fetch("/attendance/mark", {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        token: token,
+                        lat: latitude,
+                        lon: longitude,
+                        device_id: deviceID
+                    })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if(data.success) location.reload();
+            } else if (token) {
+                alert("Please enter a valid 6-digit code.");
+            }
+        }, (err) => {
+            alert("Error: Location access is required to verify your presence.");
+        });
+    }
+
+    // --- CHART DATA & RENDERING (Preserved) ---
+    const data = {{ chart_data | tojson }};
+    const ctxRating = document.getElementById('ratingChart').getContext('2d');
+    new Chart(ctxRating, {
+        type: 'bar',
+        data: {
+            labels: ['1★', '2★', '3★', '4★', '5★'],
+            datasets: [{
+                data: data.rating_counts,
+                backgroundColor: '#6366F1',
+                borderRadius: 6,
+                barThickness: 20
+            }]
+        },
+        options: { 
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }, 
+            scales: { 
+                x: { grid: { display: false }, ticks: { font: { family: 'Inter', weight: '600' } } }, 
+                y: { display: false } 
+            } 
+        }
+    });
+
+    new Chart(document.getElementById('sentimentChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive', 'Neutral', 'Negative'],
+            datasets: [{
+                data: data.sentiment_counts,
+                backgroundColor: ['#10B981', '#94A3B8', '#F43F5E'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: { 
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%', 
+            plugins: { 
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Inter', weight: '600', size: 11 }, padding: 20 } } 
+            } 
+        }
+    });
+</script>
+{% endblock %}

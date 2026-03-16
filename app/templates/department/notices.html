@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    
+    <div class="flex justify-between items-end mb-8 border-b pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Department Notice Board</h1>
+            <p class="text-gray-500 mt-1">Department: <span class="font-semibold text-indigo-600">{{ department.name }}</span></p>
+        </div>
+        
+        {% if current_user.is_lecturer %}
+        <a href="{{ url_for('department.add_notice') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow transition">
+            + Post New Notice
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="grid gap-6">
+        {% for notice in notices %}
+        <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-indigo-500 relative group">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ notice.title }}</h3>
+                    <p class="text-gray-600 whitespace-pre-line">{{ notice.content }}</p>
+                </div>
+                
+                {% if current_user.id == notice.author_id %}
+                <form action="{{ url_for('department.delete_notice', notice_id=notice.id) }}" method="POST" onsubmit="return confirm('Delete this notice?');">
+                    <button class="text-gray-300 hover:text-red-500 p-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="mt-4 text-xs text-gray-400 flex items-center">
+                <span class="font-semibold mr-2">{{ notice.department.name }} Dept</span> • 
+                <span class="ml-2">Posted by {{ notice.department.users|selectattr("id", "equalto", notice.author_id)|map(attribute="username")|first }}</span> •
+                <span class="ml-2">{{ notice.created_at.strftime('%Y-%m-%d') }}</span>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-gray-50 rounded border border-dashed border-gray-300">
+            <p class="text-gray-500">No notices posted yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

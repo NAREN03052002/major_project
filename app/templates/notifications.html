@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Notifications</h1>
+        {% if unread_count > 0 %}
+        <a href="{{ url_for('main.clear_all_notifications') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">
+            Mark all as read
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <ul class="divide-y divide-gray-100">
+            {% for notif in notifications %}
+            <li class="hover:bg-gray-50 transition duration-150 {{ 'bg-blue-50' if not notif.is_read else '' }}">
+                <a href="{{ url_for('main.mark_notification_read', notif_id=notif.id) }}" class="block p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ notif.message }}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ notif.created_at.strftime('%b %d at %I:%M %p') }}
+                                </p>
+                            </div>
+                        </div>
+                        {% if not notif.is_read %}
+                        <div class="h-3 w-3 bg-blue-500 rounded-full shadow-sm"></div>
+                        {% endif %}
+                    </div>
+                </a>
+            </li>
+            {% else %}
+            <li class="p-12 text-center text-gray-500">
+                You have no notifications yet.
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

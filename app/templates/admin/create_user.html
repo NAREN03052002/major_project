@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-5 bg-white p-8 rounded-lg shadow-md mb-20">
+
+
+
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Create New Lecturer</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700">Cancel</a>
+    </div>
+    
+    <form method="POST">
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Full Name</label>
+            <input type="text" name="username" required 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                   placeholder="">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Email Address</label>
+            <input type="email" name="email" required 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                   placeholder="">
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Password</label>
+            <input type="password" name="password" required 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Department</label>
+            <input type="text" name="department" 
+                   class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                   placeholder="">
+        </div>
+
+        <div class="bg-blue-50 p-4 rounded mb-6 border border-blue-100">
+            <h3 class="font-bold text-blue-800 mb-2 text-sm uppercase tracking-wide">Assign Initial Subject (Optional)</h3>
+            <p class="text-xs text-blue-600 mb-3">You can also do this later via "Manage Subjects".</p>
+            
+            <div class="mb-3">
+                <label class="block text-gray-600 text-sm font-semibold mb-1">Subject Name</label>
+                <input type="text" name="subject_name" 
+                       class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                       placeholder="">
+            </div>
+            <div>
+                <label class="block text-gray-600 text-sm font-semibold mb-1">Subject Code</label>
+                <input type="text" name="subject_code" 
+                       class="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+                       placeholder="">
+            </div>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition duration-200">
+            Create Lecturer
+        </button>
+    </form>
+</div>
+{% endblock %}

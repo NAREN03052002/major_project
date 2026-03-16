@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+        <div class="mb-6 border-b pb-4">
+            <h2 class="text-2xl font-bold text-gray-800">Add New Assignment</h2>
+            <p class="text-gray-500">Course: <span class="font-semibold text-indigo-600">{{ course.name }} ({{ course.code }})</span></p>
+        </div>
+        
+        <form method="POST">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Assignment Title</label>
+                <input type="text" name="title" required placeholder="e.g., Assignment 1: Python Basics"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Instructions / Description</label>
+                <textarea name="description" rows="5" required placeholder="Describe the task..."
+                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Due Date</label>
+                    <input type="date" name="due_date" required 
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Max Marks</label>
+                    <input type="number" name="max_marks" value="100" required 
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <a href="{{ url_for('lecturer.course_details', course_id=course.id) }}" 
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded transition">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded shadow transition">
+                    Create Assignment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

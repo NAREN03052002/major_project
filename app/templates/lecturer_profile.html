@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    
+    <a href="{{ url_for('main.index') }}" class="text-gray-500 hover:text-indigo-600 mb-6 inline-flex items-center transition">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back to Dashboard
+    </a>
+
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-8 flex flex-col md:flex-row items-center md:items-start justify-between text-white">
+            <div class="flex items-center gap-6">
+                <div class="h-24 w-24 bg-white/20 rounded-full flex items-center justify-center text-4xl font-bold backdrop-blur-sm border-2 border-white/30">
+                    {{ lecturer.username[0]|upper }}
+                </div>
+                <div>
+                    <h1 class="text-4xl font-extrabold tracking-tight">Prof. {{ lecturer.username }}</h1>
+                    <p class="text-indigo-100 mt-1 text-lg">Academic Profile & Analytics</p>
+                    
+                    <div class="flex items-center gap-4 mt-4">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm backdrop-blur-md border border-white/20">
+                            {{ courses|length }} Courses
+                        </span>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm backdrop-blur-md border border-white/20">
+                            {{ review_count }} Total Reviews
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 md:mt-0 text-center bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/20">
+                <div class="text-sm uppercase tracking-wide opacity-80 font-semibold">Reputation Score</div>
+                <div class="text-5xl font-black mt-1">{{ overall_rating }}</div>
+                <div class="flex justify-center text-yellow-400 mt-2">
+                    {% for i in range(1, 6) %}
+                        {% if overall_rating >= i %}
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        {% else %}
+                            <svg class="w-5 h-5 text-gray-400/50 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="col-span-1">
+                <h3 class="text-gray-500 font-bold uppercase tracking-wider text-xs mb-3">Teaching Persona (AI Detected)</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% if tags %}
+                        {% for tag in tags %}
+                        <span class="bg-purple-50 text-purple-700 px-3 py-1 rounded-lg text-sm font-semibold border border-purple-100">
+                            {{ tag }}
+                        </span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="text-gray-400 italic text-sm">s</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-span-2">
+                <h3 class="text-gray-500 font-bold uppercase tracking-wider text-xs mb-3">Student Consensus Summary</h3>
+                {% if summary %}
+                    <p class="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100 italic">
+                        "{{ summary }}"
+                    </p>
+                {% else %}
+                    <p class="text-gray-400 italic">Waiting for more reviews to generate a summary.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Courses Taught</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for course in courses %}
+        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition duration-200 border border-gray-100">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-bold text-gray-800">{{ course.name }}</h3>
+                <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">{{ course.code }}</span>
+            </div>
+            <p class="text-gray-500 text-sm mb-4">{{ course.department }}</p>
+            
+            {% if current_user.is_authenticated and current_user.is_student %}
+            <a href="{{ url_for('main.submit', course_id=course.id) }}" class="block text-center w-full bg-white border-2 border-indigo-600 text-indigo-600 font-bold py-2 rounded-lg hover:bg-indigo-600 hover:text-white transition duration-200">
+                View & Rate
+            </a>
+            {% endif %}
+        </div>
+        {% else %}
+        <p class="text-gray-500">This professor hasn't added any courses yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

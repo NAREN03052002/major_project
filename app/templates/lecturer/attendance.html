@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-10">
+    <div class="text-center mb-10">
+        <span class="bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Live Session Active</span>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+    <div class="text-center md:text-left">
+        <span class="bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Live Session Active</span>
+        <h1 class="text-4xl font-black text-slate-900 mb-2">Smart Attendance: {{ course.name }}</h1>
+        <p class="text-slate-500 font-medium">Class: {{ course.code }} | Lecturer: {{ current_user.username }}</p>
+    </div>
+    <button onclick="endSessionEarly()" class="bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white px-8 py-3 rounded-2xl font-bold transition-all shadow-sm flex items-center group">
+        <svg class="w-5 h-5 mr-2 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        End Session Early
+    </button>
+</div>
+        <p class="text-slate-500 font-medium">Class: {{ course.code }} | Lecturer: {{ current_user.username }}</p>
+    </div>
+
+    
+    
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch mb-12">
+        
+        <div class="bg-white p-10 rounded-[3.5rem] shadow-2xl shadow-indigo-100 border-4 border-indigo-600 text-center flex flex-col justify-center transition-all">
+            <div id="qrcode" class="inline-block p-6 bg-white rounded-3xl border-2 border-slate-50 shadow-inner self-center mb-6"></div>
+            <div class="flex items-center justify-center gap-2">
+                <div class="w-2 h-2 bg-indigo-600 rounded-full animate-ping"></div>
+                <div id="timer" class="text-indigo-600 font-black font-mono text-xl tracking-tighter">Refreshing in 15s</div>
+            </div>
+        </div>
+
+        <div class="bg-indigo-600 p-10 rounded-[3.5rem] shadow-2xl shadow-indigo-200 text-white text-center flex flex-col justify-center relative overflow-hidden">
+            <div class="relative z-10">
+                <h3 class="text-indigo-100 font-bold uppercase tracking-widest mb-6">Manual Entry Code</h3>
+                <div id="display-code" class="text-8xl font-black tracking-[0.2em] mb-6 drop-shadow-lg">------</div>
+                <p class="text-indigo-100 text-sm px-10 opacity-90">Type this code into the check-in prompt on your dashboard.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
+            <div class="p-8 bg-emerald-50 border-b border-emerald-100 flex justify-between items-center">
+                <h3 class="font-bold text-emerald-900 text-xl flex items-center">
+                    <span class="w-3 h-3 bg-emerald-500 rounded-full mr-3 animate-pulse"></span>
+                    Present Students (<span id="present-count">0</span>)
+                </h3>
+            </div>
+            <div class="max-h-[400px] overflow-y-auto p-4" id="live-roster">
+                <div class="text-center py-10 text-slate-400 italic">Waiting for students to check in...</div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-[2.5rem] shadow-xl p-8 text-white">
+            <h3 class="font-bold text-lg mb-4">Manual Override</h3>
+            <input type="text" id="studentSearch" onkeyup="filterStudents()" placeholder="Search name..." class="w-full bg-slate-800 border-none rounded-xl px-4 py-2.5 text-sm mb-4 focus:ring-2 focus:ring-indigo-500">
+            <div class="max-h-[300px] overflow-y-auto space-y-2" id="manual-list">
+                {% for student in students %}
+                <div class="flex justify-between items-center p-3 bg-slate-800 rounded-xl hover:bg-slate-700 transition">
+                    <span class="text-sm font-medium">{{ student.username }}</span>
+                    <button onclick="markManual('{{ student.id }}', this)" class="text-[10px] font-black uppercase bg-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-500 transition">Mark</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    let timeLeft = 15;
+    const qrElement = document.getElementById("qrcode");
+    const qrcode = new QRCode(qrElement, { width: 280, height: 280, colorDark: "#1e1b4b" });
+
+    async function refreshSession() {
+        try {
+            const response = await fetch("/lecturer/attendance/{{ session.id }}/refresh", { method: 'POST' });
+            const data = await response.json();
+            if(data.success) {
+                qrcode.makeCode(window.location.origin + "/attendance/mark?token=" + data.token);
+                document.getElementById('display-code').innerText = data.token;
+                timeLeft = 15;
+                updateLiveFeed(); // Update the list every time the token refreshes
+            }
+        } catch (e) { console.error("Sync Error"); }
+    }
+
+    // NEW: Function to fetch the list of students who marked present
+    async function updateLiveFeed() {
+        try {
+            // We'll add this small API route in lecturer.py next
+            const res = await fetch("/lecturer/attendance/{{ session.id }}/get_present");
+            const data = await res.json();
+            const roster = document.getElementById('live-roster');
+            const count = document.getElementById('present-count');
+            
+            if(data.students.length > 0) {
+                count.innerText = data.students.length;
+                roster.innerHTML = data.students.map(s => `
+                    <div class="flex items-center justify-between p-4 mb-2 bg-slate-50 rounded-2xl border border-slate-100 animate-fade-in-down">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold mr-4">${s.name[0]}</div>
+                            <span class="font-bold text-slate-700">${s.name}</span>
+                        </div>
+                        <span class="text-xs font-black text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-tighter">Verified</span>
+                    </div>
+                `).join('');
+            }
+        } catch (e) { console.error("Feed Error"); }
+    }
+
+    async function markManual(studentId, button) {
+        const response = await fetch("/lecturer/attendance/manual_mark", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ session_id: "{{ session.id }}", student_id: studentId })
+        });
+        if((await response.json()).success) {
+            button.innerHTML = "Done ✅";
+            button.classList.replace('bg-indigo-600', 'bg-emerald-500');
+            updateLiveFeed();
+        }
+    }
+
+    setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = "Refreshing in " + timeLeft + "s";
+        if(timeLeft <= 0) refreshSession();
+    }, 1000);
+
+    refreshSession();
+
+    
+    async function endSessionEarly() {
+    if (confirm("Are you sure you want to end attendance now? Students will no longer be able to check in.")) {
+        try {
+            const res = await fetch("/lecturer/attendance/{{ session.id }}/end", { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                // Redirect back to dashboard after ending
+                window.location.href = "{{ url_for('lecturer.dashboard') }}";
+            }
+        } catch (e) {
+            alert("Error ending session. Please check your connection.");
+        }
+    }
+}
+</script>
+{% endblock %}
